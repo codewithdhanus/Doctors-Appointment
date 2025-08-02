@@ -3,13 +3,17 @@ import { DoctorProfile } from "./_components/doctor-profile";
 import { redirect } from "next/navigation";
 
 export default async function DoctorProfilePage({ params }) {
-  const { id } = params; // ✅ remove `await`
+  const { id } = await params; // ✅ Fix warning
 
   try {
     const [doctorData, slotsData] = await Promise.all([
       getDoctorById(id),
       getAvailableTimeSlots(id),
     ]);
+
+    if (!doctorData?.doctor) {
+      redirect("/doctors");
+    }
 
     return (
       <DoctorProfile
@@ -18,7 +22,7 @@ export default async function DoctorProfilePage({ params }) {
       />
     );
   } catch (error) {
-    console.error("Error loading doctor profile:", error);
+    console.error(`Error loading doctor profile for ID: ${id}`, error);
     redirect("/doctors");
   }
 }
