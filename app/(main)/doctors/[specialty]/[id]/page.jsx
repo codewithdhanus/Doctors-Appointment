@@ -3,10 +3,9 @@ import { DoctorProfile } from "./_components/doctor-profile";
 import { redirect } from "next/navigation";
 
 export default async function DoctorProfilePage({ params }) {
-  const { id } = await params;
+  const { id } = params; // ✅ remove `await`
 
   try {
-    // Fetch doctor data and available slots in parallel
     const [doctorData, slotsData] = await Promise.all([
       getDoctorById(id),
       getAvailableTimeSlots(id),
