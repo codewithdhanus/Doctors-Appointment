@@ -10,23 +10,13 @@ import { Auth } from "@vonage/auth";
 import fs from "fs";
 import path from "path";
 
-const privateKeyPath = process.env.VONAGE_PRIVATE_KEY_PATH;
+const rawPrivateKey = process.env.VONAGE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
 const appId = process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID;
 
-let rawPrivateKey;
-
-if (!privateKeyPath) {
-  console.error("[Vonage] ❌ VONAGE_PRIVATE_KEY_PATH is missing.");
-} else {
-  try {
-    rawPrivateKey = fs.readFileSync(path.resolve(privateKeyPath), "utf8");
-    console.log("[Vonage] ✅ VONAGE private key file read successfully.");
-    console.log("[Vonage] 🔐 Key starts with:", rawPrivateKey.slice(0, 30));
-  } catch (err) {
-    console.error("[Vonage] ❌ Failed to read private key file:", err);
-  }
+if (!rawPrivateKey) {
+  console.error("[Vonage] ❌ VONAGE_PRIVATE_KEY is missing.");
 }
-
 if (!appId) {
   console.error("[Vonage] ❌ NEXT_PUBLIC_VONAGE_APPLICATION_ID is missing.");
 }
@@ -34,8 +24,6 @@ if (!appId) {
 let vonage;
 
 try {
-  if (!rawPrivateKey || !appId) throw new Error("Missing required credentials");
-
   const credentials = new Auth({
     applicationId: appId,
     privateKey: rawPrivateKey,
@@ -46,7 +34,6 @@ try {
 } catch (error) {
   console.error("[Vonage] ❌ Failed to initialize Vonage:", error);
 }
-
 
 /**
  * Book a new appointment with a doctor
