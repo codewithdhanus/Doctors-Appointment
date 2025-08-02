@@ -3,8 +3,10 @@ import { DoctorProfile } from "./_components/doctor-profile";
 import { redirect } from "next/navigation";
 
 export default async function DoctorProfilePage({ params }) {
-  const { id } = await params; // ✅ Fix warning
+  // Ensure params is destructured correctly
+  const { id, specialty } = await params; // ✅ FIXED
 
+  console.log("Resolved params:", { id, specialty });
   try {
     const [doctorData, slotsData] = await Promise.all([
       getDoctorById(id),

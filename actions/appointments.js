@@ -10,8 +10,7 @@ import { Auth } from "@vonage/auth";
 import fs from "fs";
 import path from "path";
 
-const privateKeyPath = path.resolve(process.cwd(), process.env.VONAGE_PRIVATE_KEY_PATH);
-const privateKey = fs.readFileSync(privateKeyPath, "utf8");
+const privateKey = process.env.VONAGE_PRIVATE_KEY;
 console.log('Loaded Vonage Key:', process.env.VONAGE_PRIVATE_KEY_PATH);
 
 // Initialize Vonage Video API client
@@ -266,6 +265,7 @@ export async function generateVideoToken(formData) {
  * Get doctor by ID
  */
 export async function getDoctorById(doctorId) {
+  console.log("Fetching doctor by ID:", doctorId);
   try {
     const doctor = await db.user.findUnique({
       where: {
