@@ -10,16 +10,43 @@ import { Auth } from "@vonage/auth";
 import fs from "fs";
 import path from "path";
 
-const privateKey = process.env.VONAGE_PRIVATE_KEY;
-console.log('Loaded Vonage Key:', process.env.VONAGE_PRIVATE_KEY_PATH);
+const privateKeyPath = process.env.VONAGE_PRIVATE_KEY_PATH;
+const appId = process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID;
 
-// Initialize Vonage Video API client
-const credentials = new Auth({
-  applicationId: process.env.NEXT_PUBLIC_VONAGE_APPLICATION_ID,
-  privateKey,
-});
+let rawPrivateKey;
 
-const vonage = new Vonage(credentials);
+if (!privateKeyPath) {
+  console.error("[Vonage] ❌ VONAGE_PRIVATE_KEY_PATH is missing.");
+} else {
+  try {
+    rawPrivateKey = fs.readFileSync(path.resolve(privateKeyPath), "utf8");
+    console.log("[Vonage] ✅ VONAGE private key file read successfully.");
+    console.log("[Vonage] 🔐 Key starts with:", rawPrivateKey.slice(0, 30));
+  } catch (err) {
+    console.error("[Vonage] ❌ Failed to read private key file:", err);
+  }
+}
+
+if (!appId) {
+  console.error("[Vonage] ❌ NEXT_PUBLIC_VONAGE_APPLICATION_ID is missing.");
+}
+
+let vonage;
+
+try {
+  if (!rawPrivateKey || !appId) throw new Error("Missing required credentials");
+
+  const credentials = new Auth({
+    applicationId: appId,
+    privateKey: rawPrivateKey,
+  });
+
+  vonage = new Vonage(credentials);
+  console.log("[Vonage] ✅ Vonage initialized successfully.");
+} catch (error) {
+  console.error("[Vonage] ❌ Failed to initialize Vonage:", error);
+}
+
 
 /**
  * Book a new appointment with a doctor
@@ -153,12 +180,16 @@ export async function bookAppointment(formData) {
  */
 async function createVideoSession() {
   try {
+    console.log("[Vonage] Creating video session...");
     const session = await vonage.video.createSession({ mediaMode: "routed" });
+    console.log("[Vonage] ✅ Video session created:", session.sessionId);
     return session.sessionId;
   } catch (error) {
+    console.error("[Vonage] ❌ Failed to create video session:", error);
     throw new Error("Failed to create video session: " + error.message);
   }
 }
+
 
 /**
  * Generate a token for a video session
@@ -265,7 +296,7 @@ export async function generateVideoToken(formData) {
  * Get doctor by ID
  */
 export async function getDoctorById(doctorId) {
-  console.log("Fetching doctor by ID:", doctorId);
+  
   try {
     const doctor = await db.user.findUnique({
       where: {
