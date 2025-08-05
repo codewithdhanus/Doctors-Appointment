@@ -36,6 +36,16 @@ try {
 }
 
 /**
+ * Custom error for patient not found
+ */
+class PatientNotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "PatientNotFoundError";
+  }
+}
+
+/**
  * Book a new appointment with a doctor
  */
 export async function bookAppointment(formData) {
@@ -55,9 +65,9 @@ export async function bookAppointment(formData) {
     });
 
     if (!patient) {
-      throw new Error("Patient not found");
+      console.error("Patient not found");
+      throw new PatientNotFoundError("Patient not found");
     }
-
     // Parse form data
     const doctorId = formData.get("doctorId");
     const startTime = new Date(formData.get("startTime"));

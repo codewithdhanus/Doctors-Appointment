@@ -153,7 +153,7 @@ export function DoctorProfile({ doctor, availableDays }) {
               </div>
               {totalSlots > 0 ? (
                 <div className="flex items-center">
-                  <Calendar className="h-5 w-5 text-emerald-400 mr-2" />
+                  <Calendar className="h-5 w-5 text-emerald-400 mr-2" />z
                   <p className="text-muted-foreground">
                     {totalSlots} time slots available for booking over the next
                     4 days
